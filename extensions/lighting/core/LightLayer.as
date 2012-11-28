@@ -1,5 +1,6 @@
 package starling.extensions.lighting.core
 {
+	import flash.geom.Point;
 	import starling.extensions.lighting.shaders.GaussianBlurShader;
 	import starling.extensions.lighting.shaders.SpotLightShader;
 	import starling.extensions.lighting.lights.SpotLight;
@@ -267,6 +268,7 @@ package starling.extensions.lighting.core
 				vertices.length = 0;
 				indices.length = 0;
 				totalEdgeCount = 0;
+				removeDuplicateEdges();
 				for each(var shadowGeometry:ShadowGeometry in geometry)
 				{
 					//shadowGeometry.transform();
@@ -415,6 +417,34 @@ package starling.extensions.lighting.core
 			geometryIndexBuffer.dispose();
 			
 			lightMapIn.dispose();
+		}
+		
+		private function removeDuplicateEdges():void
+		{
+			var all:Vector.<Edge> = new Vector.<Edge>();
+			var edges:Vector.<Edge>;
+			var count:int = 0;
+			for each(var shadowGeometry:ShadowGeometry in geometry)
+			{
+				edges = shadowGeometry.worldEdges;
+				edgeIter: for (var i:int = 0; i < edges.length; i++)
+				{
+					count++;
+					var t:Edge = edges[i];
+					for (var k:int = 0; k < all.length; k++)
+					{
+						var a:Edge = all[k];
+						if ((a.start.equals(t.start) && a.end.equals(t.end))||(a.start.equals(t.end) && a.end.equals(t.start)))
+						{
+							edges.splice(i, 1);
+							i--;
+							continue edgeIter;
+						}
+					}
+					all.push(t);
+				}
+			}
+			trace("[LightLayer] removeDuplicateEdges()", all.length, "of", count, "remain.");
 		}
 
 		private function nextPowerOfTwo(n:uint):uint

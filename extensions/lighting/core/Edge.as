@@ -9,7 +9,6 @@ package starling.extensions.lighting.core
 	{
 		public var start:Point;
 		public var end:Point;
-		
 		/**
 		 * simple class to hold the start and end points of an edge used for shadow casting
 		 */
